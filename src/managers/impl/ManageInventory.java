@@ -2,14 +2,12 @@ package managers.impl;
 
 import domain.BrandsOfSoda;
 import domain.SodaMachineSpecifications;
-import exceptions.InvalidArgumentException;
 import exceptions.InvalidStateException;
 import managers.IManageInventory;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,16 +26,20 @@ public class ManageInventory implements IManageInventory {
             "sodas than there are available buttons";
     private static final String INITIAL_STOCKING_SODA_ERROR = "You must provide at least one variety" +
             "of soda";
-    public static final String MESSAGE_ERROR = "Management of inventory has gone incredibly wrong, " +
-            "application is in an invalid state.";
     public static final String EMPTY_STRING = "";
     public static final int ZERO = 0;
 
     private HashMap<BrandsOfSoda, Integer> inventory = new HashMap<BrandsOfSoda, Integer>();
     private SodaMachineSpecifications specifications;
+    private final List<BrandsOfSoda> brandsOfSodas;
 
-    public ManageInventory(SodaMachineSpecifications specifications) {
+    public ManageInventory(SodaMachineSpecifications specifications, List<BrandsOfSoda> brandsOfSodas) {
         this.specifications = specifications;
+        this.brandsOfSodas = brandsOfSodas;
+    }
+
+    public List<BrandsOfSoda> getBrandsOfSodas() {
+        return brandsOfSodas;
     }
 
     public int getMaximumCapacityOfSodasForMachine() {
@@ -82,25 +84,11 @@ public class ManageInventory implements IManageInventory {
         if (compared == ZERO) {
             decrementInventory(soda);
             return MESSAGE_DISPENSED_PREFIX + sodaDescription;
-        } else if (compared == 1){
+        } else if (compared == 1) {
             decrementInventory(soda);
         }
 
         return EMPTY_STRING;
-    }
-
-    public void initialStockingOfMachine(List<BrandsOfSoda> brandsOfSodaList)
-            throws InvalidArgumentException {
-
-        if (brandsOfSodaList == null || brandsOfSodaList.size() == ZERO)
-            throw new InvalidArgumentException(INITIAL_STOCKING_SODA_ERROR);
-
-        if (brandsOfSodaList.size() > specifications.getNumberOfSelectionButtons())
-            throw new InvalidArgumentException(TOO_MANY_SODA_TYPES_FOR_AMOUNT_OF_SELECTION_BUTTONS);
-
-        for (BrandsOfSoda soda : brandsOfSodaList) {
-            inventory.put(soda, calculateTheMaximumCapacityOfSodaPerSelection());
-        }
     }
 
     public void decrementInventory(BrandsOfSoda soda) {
@@ -126,11 +114,15 @@ public class ManageInventory implements IManageInventory {
     }
 
     public void restockAllSodaToMaxCount() throws InvalidStateException {
-        Set<BrandsOfSoda> sodas = inventory.keySet();
+        if (brandsOfSodas == null || brandsOfSodas.size() == ZERO) {
+            throw new InvalidStateException(INITIAL_STOCKING_SODA_ERROR);
+        }
 
-        if (sodas.isEmpty()) throw new InvalidStateException(MESSAGE_ERROR);
+        if (brandsOfSodas.size() > specifications.getNumberOfSelectionButtons()) {
+            throw new InvalidStateException(TOO_MANY_SODA_TYPES_FOR_AMOUNT_OF_SELECTION_BUTTONS);
+        }
 
-        for (BrandsOfSoda soda : sodas) {
+        for (BrandsOfSoda soda : brandsOfSodas) {
             inventory.put(soda, calculateTheMaximumCapacityOfSodaPerSelection());
         }
     }

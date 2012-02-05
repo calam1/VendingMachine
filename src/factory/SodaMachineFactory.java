@@ -1,5 +1,6 @@
 package factory;
 
+import domain.Commands;
 import domain.IAmAVendingMachine;
 import domain.impl.VendingMachine;
 import managers.IManageInventory;
@@ -13,9 +14,11 @@ import managers.IManageVendingMachineBalance;
  * To change this template use File | Settings | File Templates.
  */
 public enum SodaMachineFactory {
+
     INSTANCE;
 
-    public IAmAVendingMachine createSodaMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance) {
-        return new VendingMachine(manageInventory, balance);
+    public IAmAVendingMachine createSodaMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance, Commands commands) {
+        return new VendingMachine(manageInventory, balance, commands);
     }
+
 }

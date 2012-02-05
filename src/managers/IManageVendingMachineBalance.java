@@ -14,9 +14,10 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public interface IManageVendingMachineBalance {
+
     void resetWorkingBalance();
 
-    void subtractMoneyFromMachineBalance(BigDecimal amount);
+    void setWorkingBalance(BigDecimal amount);
 
     BigDecimal getMachineBalance();
 
@@ -24,7 +25,8 @@ public interface IManageVendingMachineBalance {
 
     String acceptInsertedMoney(String money) throws InvalidMoneyException;
 
-    String calculateDepositedAmountAgainstCostOfSoda(BigDecimal costOfSoda, BrandsOfSoda soda, int compared);
+    String calculateDepositedAmountAgainstCostOfSoda(BigDecimal costOfSoda, BrandsOfSoda soda, int compared, boolean hasStock);
 
     Map<String,Integer> returnMoney();
+
 }

@@ -30,10 +30,11 @@ public class InventoryManager {
     private static final int MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_4 = 4;
     private static final int MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100 = 100;
     private static final int MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_200 = 200;
+    private static final int NUMBER_OF_SELECTION_BUTTONS_NEGATIVE_1 = -1;
+    private static final int NUMBER_OF_SELECTION_BUTTONS_0 = 0;
     private static final int NUMBER_OF_SELECTION_BUTTONS_2 = 2;
     private static final int NUMBER_OF_SELECTION_BUTTONS_3 = 3;
     private static final int NUMBER_OF_SELECTION_BUTTONS_4 = 4;
-
     private static final BigDecimal EXPECTED_COST = new BigDecimal("0.50");
     private static final String SPACE = "";
     private static final int COMPARED_GREATER_THAN = 1;
@@ -60,11 +61,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory inventoryManager = new ManageInventory(specifications);
+        IManageInventory inventoryManager = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            inventoryManager.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            inventoryManager.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 
@@ -87,11 +88,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory inventoryManager = new ManageInventory(specifications);
+        IManageInventory inventoryManager = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            inventoryManager.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            inventoryManager.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 
@@ -114,11 +115,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory inventoryManager = new ManageInventory(specifications);
+        IManageInventory inventoryManager = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            inventoryManager.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            inventoryManager.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 
@@ -141,7 +142,7 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory inventoryManager = new ManageInventory(specifications);
+        IManageInventory inventoryManager = new ManageInventory(specifications, standardListOfSodas);
 
         final int EXPECTED = 25;
         int maximumNumberOfSodasForTheMachine =
@@ -161,7 +162,7 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory inventoryManager = new ManageInventory(specifications);
+        IManageInventory inventoryManager = new ManageInventory(specifications, standardListOfSodas);
 
         final int EXPECTED = 50;
         int maximumNumberOfSodasForTheMachine =
@@ -181,7 +182,7 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory inventoryManager = new ManageInventory(specifications);
+        IManageInventory inventoryManager = new ManageInventory(specifications, standardListOfSodas);
 
         final int EXPECTED = 24;
         int maximumNumberOfSodasForTheMachine =
@@ -190,8 +191,8 @@ public class InventoryManager {
         assertEquals(EXPECTED, maximumNumberOfSodasForTheMachine);
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void whenYouAttemptToStockSodaWithNullListThrowInvalidArgumentException() throws InvalidArgumentException {
+    @Test(expected = InvalidStateException.class)
+    public void whenYouAttemptToStockSodaWithNullListThrowInvalidArgumentException() throws InvalidStateException {
         SodaMachineSpecifications specifications = null;
 
         try {
@@ -201,48 +202,32 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, null);
         List<BrandsOfSoda> brandsOfSodaList = null;
 
-        manageInventory.initialStockingOfMachine(brandsOfSodaList);
+        manageInventory.restockAllSodaToMaxCount();
     }
 
     @Test(expected = InvalidArgumentException.class)
     public void whenYouAttemptToStockSodaWithNoSelectionButtonsThrowInvalidArgumentException() throws InvalidArgumentException {
         SodaMachineSpecifications specifications = null;
 
-        try {
-            specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100, NUMBER_OF_SELECTION_BUTTONS_4,
-                    EXPECTED_COST);
-        } catch (InvalidArgumentException e) {
-            fail();
-        }
-
-        IManageInventory manageInventory = new ManageInventory(specifications);
-        List<BrandsOfSoda> brandsOfSodaList = new ArrayList<BrandsOfSoda>();
-
-        manageInventory.initialStockingOfMachine(brandsOfSodaList);
+        specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100, NUMBER_OF_SELECTION_BUTTONS_0,
+                EXPECTED_COST);
     }
 
     @Test(expected = InvalidArgumentException.class)
-    public void whenYouAttemptToStockSodaWithNegativeCountOFSelectionButtonsThrowInvalidArgumentException() throws InvalidArgumentException {
+    public void whenYouAttemptToStockSodaWithNegativeCountOfSelectionButtonsThrowInvalidArgumentException() throws InvalidArgumentException {
         SodaMachineSpecifications specifications = null;
 
-        try {
-            specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100, NUMBER_OF_SELECTION_BUTTONS_4,
-                    EXPECTED_COST);
-        } catch (InvalidArgumentException e) {
-            fail();
-        }
+        specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100, NUMBER_OF_SELECTION_BUTTONS_NEGATIVE_1,
+                EXPECTED_COST);
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
-        List<BrandsOfSoda> brandsOfSodaList = new ArrayList<BrandsOfSoda>();
-
-        manageInventory.initialStockingOfMachine(brandsOfSodaList);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
     }
 
-    @Test(expected = InvalidArgumentException.class)
-    public void whenYouStockMoreTypesOfSodaThanThereAreSelectionButtonsThrowInvalidArgumentException() throws InvalidArgumentException {
+    @Test(expected = InvalidStateException.class)
+    public void whenYouStockMoreTypesOfSodaThanThereAreSelectionButtonsThrowInvalidArgumentException() throws InvalidStateException {
         SodaMachineSpecifications specifications = null;
 
         try {
@@ -252,13 +237,13 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
-        manageInventory.initialStockingOfMachine(standardListOfSodas);
+        manageInventory.restockAllSodaToMaxCount();
     }
 
     @Test
-    public void whenIHaveAMaxOf100SodasForAMachineAnd3TypesOfSodasIWillHave33SodasPerType() throws InvalidArgumentException {
+    public void whenIHaveAMaxOf100SodasForAMachineAnd3TypesOfSodasIWillHave33SodasPerType() throws InvalidStateException {
         SodaMachineSpecifications specifications = null;
 
         try {
@@ -268,9 +253,9 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
-        manageInventory.initialStockingOfMachine(standardListOfSodas);
+        manageInventory.restockAllSodaToMaxCount();
 
         int numberOfRootBeers = manageInventory.getCurrentInventoryForAParticularSelection(BrandsOfSoda.ROOT_BEER);
         int numberOfCokes = manageInventory.getCurrentInventoryForAParticularSelection(BrandsOfSoda.COKE);
@@ -284,7 +269,7 @@ public class InventoryManager {
     }
 
     @Test
-    public void whenIRestockASpecificSodaTheCountWillBeTheMaxPossibleForThatBrand() throws InvalidArgumentException {
+    public void whenIRestockASpecificSodaTheCountWillBeTheMaxPossibleForThatBrand() throws InvalidStateException {
         SodaMachineSpecifications specifications = null;
 
         try {
@@ -294,9 +279,9 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
-        manageInventory.initialStockingOfMachine(standardListOfSodas);
+        manageInventory.restockAllSodaToMaxCount();
 
         int numberOfRootBeers = manageInventory.getCurrentInventoryForAParticularSelection(BrandsOfSoda.ROOT_BEER);
 
@@ -327,9 +312,9 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
-        manageInventory.initialStockingOfMachine(standardListOfSodas);
+        manageInventory.restockAllSodaToMaxCount();
 
         int numberOfRootBeers = manageInventory.getCurrentInventoryForAParticularSelection(BrandsOfSoda.ROOT_BEER);
         int numberOfCokes = manageInventory.getCurrentInventoryForAParticularSelection(BrandsOfSoda.COKE);
@@ -367,21 +352,6 @@ public class InventoryManager {
         assertEquals(EXPECTED_ORIGINAL_STOCKING, numberOfDietCokesAfterRestocking);
     }
 
-    @Test(expected = InvalidStateException.class)
-    public void whenRestockingAllAndThereAreNoSodaTypesThrowInvalidStateException() throws InvalidStateException {
-        SodaMachineSpecifications specifications = null;
-
-        try {
-            specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100, NUMBER_OF_SELECTION_BUTTONS_4,
-                    EXPECTED_COST);
-        } catch (InvalidArgumentException e) {
-            fail();
-        }
-
-        IManageInventory manageInventory = new ManageInventory(specifications);
-        manageInventory.restockAllSodaToMaxCount();
-    }
-
     @Test
     public void decrementOneSodaFromInventoryOf25ResultingInventoryShouldBe24() {
         SodaMachineSpecifications specifications = null;
@@ -390,9 +360,11 @@ public class InventoryManager {
         try {
             specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100, NUMBER_OF_SELECTION_BUTTONS_4,
                     EXPECTED_COST);
-            manageInventory = new ManageInventory(specifications);
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory = new ManageInventory(specifications, standardListOfSodas);
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
+            fail();
+        } catch (InvalidArgumentException ea) {
             fail();
         }
 
@@ -411,9 +383,11 @@ public class InventoryManager {
         try {
             specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_100, NUMBER_OF_SELECTION_BUTTONS_4,
                     EXPECTED_COST);
-            manageInventory = new ManageInventory(specifications);
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory = new ManageInventory(specifications, standardListOfSodas);
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
+            fail();
+        } catch (InvalidArgumentException ae) {
             fail();
         }
 
@@ -431,9 +405,11 @@ public class InventoryManager {
         try {
             specifications = new SodaMachineSpecifications(MAXIMUM_AMOUNT_OF_SODAS_FOR_MACHINE_4, NUMBER_OF_SELECTION_BUTTONS_4,
                     EXPECTED_COST);
-            manageInventory = new ManageInventory(specifications);
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
+            manageInventory = new ManageInventory(specifications, standardListOfSodas);
+            manageInventory.restockAllSodaToMaxCount();
         } catch (InvalidArgumentException e) {
+            fail();
+        } catch (InvalidStateException ie) {
             fail();
         }
 
@@ -459,11 +435,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException ie) {
             fail();
         }
 
@@ -485,11 +461,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 
@@ -511,11 +487,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 
@@ -543,11 +519,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 
@@ -574,11 +550,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 
@@ -615,11 +591,11 @@ public class InventoryManager {
             fail();
         }
 
-        IManageInventory manageInventory = new ManageInventory(specifications);
+        IManageInventory manageInventory = new ManageInventory(specifications, standardListOfSodas);
 
         try {
-            manageInventory.initialStockingOfMachine(standardListOfSodas);
-        } catch (InvalidArgumentException e) {
+            manageInventory.restockAllSodaToMaxCount();
+        } catch (InvalidStateException e) {
             fail();
         }
 

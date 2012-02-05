@@ -2,12 +2,16 @@ package domain.impl;
 
 import domain.BrandsOfSoda;
 import domain.Coins;
+import domain.Commands;
 import domain.IAmAVendingMachine;
+import exceptions.InvalidMoneyException;
 import exceptions.InvalidStateException;
 import managers.IManageInventory;
 import managers.IManageVendingMachineBalance;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,14 +23,17 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public class VendingMachine implements IAmAVendingMachine {
+
     private static final String PREFIX_COIN_RETURN_MESSAGE = "We returned ";
-    public static final String SPACER = " ";
+    private static final String SPACER = " ";
     private final IManageInventory manageInventory;
     private IManageVendingMachineBalance balance;
+    private final Commands commands;
 
-    public VendingMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance) {
+    public VendingMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance, Commands commands) {
         this.manageInventory = manageInventory;
         this.balance = balance;
+        this.commands = commands;
     }
 
     public int getNumberOfSelectionButtons() {
@@ -37,8 +44,23 @@ public class VendingMachine implements IAmAVendingMachine {
         return manageInventory.getMaximumCapacityOfSodasForMachine();
     }
 
+    public List<String> getTheBrandsOfSodaInTheMachine() {
+        List<BrandsOfSoda> enumBrands = manageInventory.getBrandsOfSodas();
+        List<String> brands = new ArrayList<String>();
+
+        for (BrandsOfSoda soda : enumBrands) {
+            brands.add(soda.toString());
+        }
+
+        return brands;
+    }
+
     public int calculateTheMaximumAmountOfProductPerSelection() {
         return manageInventory.calculateTheMaximumCapacityOfSodaPerSelection();
+    }
+
+    public List<String> getCommands(){
+        return commands.getCommands();
     }
 
     public void restockSpecificSelection(BrandsOfSoda brandsOfSoda) {
@@ -56,13 +78,17 @@ public class VendingMachine implements IAmAVendingMachine {
     public String dispenseSoda(BrandsOfSoda soda) {
         BigDecimal costOfSoda = manageInventory.getCostOfSoda();
         BigDecimal workingBalance = balance.getWorkingBalance();
-
         int compare = workingBalance.compareTo(costOfSoda);
+        boolean hasStock = manageInventory.checkIfSodaInventoryIsGreaterThanZero(soda);
 
-        String messageFromAccounting = balance.calculateDepositedAmountAgainstCostOfSoda(costOfSoda, soda, compare);
         String messagesFromInventory = manageInventory.dispenseSoda(soda, compare);
+        String messageFromAccounting = balance.calculateDepositedAmountAgainstCostOfSoda(costOfSoda, soda, compare, hasStock);
 
-        return messageFromAccounting + messagesFromInventory;
+        return messageFromAccounting + " \n " + messagesFromInventory;
+    }
+
+    public String insertCoin(String coin) throws InvalidMoneyException {
+        return balance.acceptInsertedMoney(coin);
     }
 
     public String coinReturn() {
@@ -71,24 +97,36 @@ public class VendingMachine implements IAmAVendingMachine {
         StringBuilder coinReturnMessage = new StringBuilder();
         coinReturnMessage.append(PREFIX_COIN_RETURN_MESSAGE);
 
-          for (String coin : coinDenominations) {
+        for (String coin : coinDenominations) {
             if (coin.equals(Coins.TWENTY_FIVE_CENTS.getStringRepresentation())) {
-                Integer count = returnedCoins.get(Coins.TWENTY_FIVE_CENTS.getStringRepresentation());
-                coinReturnMessage.append(count + SPACER + Coins.TWENTY_FIVE_CENTS.getDescriptions() + SPACER);
+                processReturningQuarters(returnedCoins, coinReturnMessage);
             }
 
             if (coin.equals(Coins.TEN_CENTS.getStringRepresentation())) {
-                Integer count = returnedCoins.get(Coins.TEN_CENTS.getStringRepresentation());
-                coinReturnMessage.append(count + SPACER + Coins.TEN_CENTS.getDescriptions() + SPACER);
+                processReturningDimes(returnedCoins, coinReturnMessage);
             }
 
             if (coin.equals(Coins.FIVE_CENTS.getStringRepresentation())) {
-                Integer count = returnedCoins.get(Coins.FIVE_CENTS.getStringRepresentation());
-                coinReturnMessage.append(count + SPACER + Coins.FIVE_CENTS.getDescriptions() + SPACER);
+                processReturningNickels(returnedCoins, coinReturnMessage);
             }
         }
 
         return coinReturnMessage.toString();
+    }
+
+    private void processReturningNickels(Map<String, Integer> returnedCoins, StringBuilder coinReturnMessage) {
+        Integer count = returnedCoins.get(Coins.FIVE_CENTS.getStringRepresentation());
+        coinReturnMessage.append(count + SPACER + Coins.FIVE_CENTS.getDescriptions() + SPACER);
+    }
+
+    private void processReturningDimes(Map<String, Integer> returnedCoins, StringBuilder coinReturnMessage) {
+        Integer count = returnedCoins.get(Coins.TEN_CENTS.getStringRepresentation());
+        coinReturnMessage.append(count + SPACER + Coins.TEN_CENTS.getDescriptions() + SPACER);
+    }
+
+    private void processReturningQuarters(Map<String, Integer> returnedCoins, StringBuilder coinReturnMessage) {
+        Integer count = returnedCoins.get(Coins.TWENTY_FIVE_CENTS.getStringRepresentation());
+        coinReturnMessage.append(count + SPACER + Coins.TWENTY_FIVE_CENTS.getDescriptions() + SPACER);
     }
 
 }

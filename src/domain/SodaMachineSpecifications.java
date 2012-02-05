@@ -12,6 +12,7 @@ import java.math.BigDecimal;
  * To change this template use File | Settings | File Templates.
  */
 public final class SodaMachineSpecifications {
+
     public static final int ZERO = 0;
     private final String SELECTION_MAXIMUM_ERROR_MESSAGE = "Zero or a negative number is not a valid input for" +
             " the creation of a vending machine";
@@ -46,4 +47,5 @@ public final class SodaMachineSpecifications {
     public BigDecimal getCostOfSoda() {
         return costOfSoda;
     }
+
 }

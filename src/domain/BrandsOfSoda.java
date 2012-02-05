@@ -8,10 +8,12 @@ package domain;
  * To change this template use File | Settings | File Templates.
  */
 public enum BrandsOfSoda {
+
     COKE,
     DIET_COKE,
     SIERRA_MIST,
     ROOT_BEER,
     ICED_TEA,
     SUNKIST_ORANGE;
+
 }

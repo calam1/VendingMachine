@@ -10,9 +10,10 @@ import java.math.BigDecimal;
  * To change this template use File | Settings | File Templates.
  */
 public enum Coins {
-    TWENTY_FIVE_CENTS ("0.25", 25, new BigDecimal("0.25"), "quarters"),
-    TEN_CENTS("0.10", 10, new BigDecimal("0.10"), "dimes"),
-    FIVE_CENTS("0.05", 5, new BigDecimal("0.05"), "nickels");
+
+    TWENTY_FIVE_CENTS ("0.25", 25, new BigDecimal("0.25"), "quarter(s)"),
+    TEN_CENTS("0.10", 10, new BigDecimal("0.10"), "dime(s)"),
+    FIVE_CENTS("0.05", 5, new BigDecimal("0.05"), "nickel(s)");
 
     private final String stringRepresentation;
     private final int integerRepresentation;
@@ -41,4 +42,5 @@ public enum Coins {
     public String getDescriptions() {
         return descriptions;
     }
+
 }

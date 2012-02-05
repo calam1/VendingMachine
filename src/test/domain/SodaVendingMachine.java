@@ -1,5 +1,6 @@
 package test.domain;
 
+import domain.BrandsOfSoda;
 import domain.IAmAVendingMachine;
 import domain.SodaMachineSpecifications;
 import domain.impl.VendingMachine;
@@ -10,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -29,6 +32,7 @@ public class SodaVendingMachine {
 
     private SodaMachineSpecifications specifications;
     private IManageInventory inventoryManager;
+    private List<BrandsOfSoda> listOfSodas;
 
     @Before
     public void setUp() {
@@ -39,18 +43,21 @@ public class SodaVendingMachine {
             fail();
         }
 
-        inventoryManager = new ManageInventory(specifications);
+        listOfSodas = new ArrayList<BrandsOfSoda>();
+        listOfSodas.add(BrandsOfSoda.COKE);
+        listOfSodas.add(BrandsOfSoda.DIET_COKE);
+
+        inventoryManager = new ManageInventory(specifications, listOfSodas);
     }
 
     @Test
     public void howManySelectButtonsAreThereOnTheMachine() {
-        IAmAVendingMachine IAmAVendingMachine = null;
+        IAmAVendingMachine vendingMachine = null;
 
-        IAmAVendingMachine = new VendingMachine(inventoryManager, null);
+        vendingMachine = new VendingMachine(inventoryManager, null, null);
 
-        int numberOfSelections = IAmAVendingMachine.getNumberOfSelectionButtons();
+        int numberOfSelections = vendingMachine.getNumberOfSelectionButtons();
 
         assertEquals(4, numberOfSelections);
     }
-
 }

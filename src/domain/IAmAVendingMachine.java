@@ -1,6 +1,9 @@
 package domain;
 
+import exceptions.InvalidMoneyException;
 import exceptions.InvalidStateException;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,11 +13,6 @@ import exceptions.InvalidStateException;
  * To change this template use File | Settings | File Templates.
  */
 public interface IAmAVendingMachine {
-    int getNumberOfSelectionButtons();
-
-    int getMaximumNumberOfCansAllowedInMachine();
-
-    int calculateTheMaximumAmountOfProductPerSelection();
 
     void restockSpecificSelection(BrandsOfSoda brandsOfSoda);
 
@@ -22,8 +20,20 @@ public interface IAmAVendingMachine {
 
     void restockSpecificSelectionWithAmount(BrandsOfSoda brandsOfSoda, int amount);
 
+    int getNumberOfSelectionButtons();
+
+    int getMaximumNumberOfCansAllowedInMachine();
+
+    int calculateTheMaximumAmountOfProductPerSelection();
+
     String dispenseSoda(BrandsOfSoda soda);
 
+    String insertCoin(String coin) throws InvalidMoneyException;
+
     String coinReturn();
+
+    List<String> getTheBrandsOfSodaInTheMachine();
+
+    List<String> getCommands();
 
 }

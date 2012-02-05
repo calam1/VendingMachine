@@ -86,4 +86,5 @@ public class SodaSpecifications {
         BigDecimal cost = specifications.getCostOfSoda();
         assertEquals(EXPECTED_COST, cost);
     }
+
 }

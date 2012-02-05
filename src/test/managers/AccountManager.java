@@ -26,10 +26,8 @@ public class AccountManager {
 
     private static final BigDecimal EXPECTED_BALANCE_0 = new BigDecimal("0.00");
     private static final BigDecimal EXPECTED_BALANCE_50_CENTS = new BigDecimal("0.50");
+    private static final BigDecimal EXPECTED_BALANCE_60_CENTS = new BigDecimal("0.60");
     private static final BigDecimal EXPECTED_BALANCE_65_CENTS = new BigDecimal("0.65");
-    //    private static final String FIVE_CENTS = "0.05";
-//    private static final String TEN_CENTS = "0.10";
-//    private static final String TWENTY_FIVE_CENTS = "0.25";
     private static final String FIFTY_CENTS = "0.50";
     private static final String SIX_CENTS = "0.06";
     private static final String SIXTY_CENTS = "0.60";
@@ -44,12 +42,19 @@ public class AccountManager {
     private static final int ZERO = 0;
     private static final int NEGATIVE_ONE = -1;
     private static final int ONE = 1;
+    public static final String TEN_CENTS = "0.10";
 
     IManageVendingMachineBalance manageVendingMachineBalance;
+//    Commands commands;
+//    List<BrandsOfSoda> sodas;
 
     @Before
     public void setup() {
+//        sodas.add(BrandsOfSoda.COKE);
+//        sodas.add(BrandsOfSoda.DIET_COKE);
+
         manageVendingMachineBalance = new ManageVendingMachineBalance();
+//        commands = new CommandImpl(sodas);
     }
 
     @Test(expected = InvalidMoneyException.class)
@@ -125,7 +130,7 @@ public class AccountManager {
     @Test
     public void noMoneyDepositedShouldAskFor50Cents() {
         IManageVendingMachineBalance manageVendingMachineBalance = new ManageVendingMachineBalance();
-        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, -1);
+        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, -1, true);
 
         assertEquals(ManageVendingMachineBalance.MESSAGE_PLEASE_INSERT_PROPER_AMOUNT_PREFIX + COST_OF_SODA +
                 ManageVendingMachineBalance.CENTS, message);
@@ -142,7 +147,7 @@ public class AccountManager {
             fail();
         }
 
-        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ZERO);
+        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ZERO, true);
 
         assertEquals("", message);
     }
@@ -158,7 +163,7 @@ public class AccountManager {
             fail();
         }
 
-        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, NEGATIVE_ONE);
+        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, NEGATIVE_ONE, true);
 
         assertEquals(ManageVendingMachineBalance.MESSAGE_NEED_TO_INSERT_MORE_MONEY_PREFIX + FIFTEEN_CENTS +
                 ManageVendingMachineBalance.CENTS, message);
@@ -176,11 +181,11 @@ public class AccountManager {
             fail();
         }
 
-        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ONE);
+        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ONE, true);
 
         assertEquals(ManageVendingMachineBalance.MESSAGE_DISPENSED_PREFIX + BrandsOfSoda.COKE.toString() +
-                ManageVendingMachineBalance.MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX + Coins.TEN_CENTS.getStringRepresentation() +
-                ManageVendingMachineBalance.CENTS, message);
+                ManageVendingMachineBalance.MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX  + TEN_CENTS + ManageVendingMachineBalance.CENTS +
+                ManageVendingMachineBalance.COIN_RETURN_MESSAGE, message);
     }
 
     @Test
@@ -194,7 +199,7 @@ public class AccountManager {
             fail();
         }
 
-        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ZERO);
+        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ZERO, true);
 
         assertEquals("", message);
 
@@ -215,15 +220,15 @@ public class AccountManager {
             fail();
         }
 
-        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ONE);
+        String message = manageVendingMachineBalance.calculateDepositedAmountAgainstCostOfSoda(COST_OF_SODA, BrandsOfSoda.COKE, ONE, true);
 
         assertEquals(ManageVendingMachineBalance.MESSAGE_DISPENSED_PREFIX + BrandsOfSoda.COKE.toString() +
-                ManageVendingMachineBalance.MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX + Coins.TEN_CENTS.getStringRepresentation() +
-                ManageVendingMachineBalance.CENTS, message);
+                ManageVendingMachineBalance.MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX  + TEN_CENTS + ManageVendingMachineBalance.CENTS +
+                ManageVendingMachineBalance.COIN_RETURN_MESSAGE, message);
 
         BigDecimal machineBalance = manageVendingMachineBalance.getMachineBalance();
 
-        assertEquals(EXPECTED_BALANCE_50_CENTS, machineBalance);
+        assertEquals(EXPECTED_BALANCE_60_CENTS, machineBalance);
     }
 
     @Test

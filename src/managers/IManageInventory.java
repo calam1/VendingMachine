@@ -1,7 +1,6 @@
 package managers;
 
 import domain.BrandsOfSoda;
-import exceptions.InvalidArgumentException;
 import exceptions.InvalidStateException;
 
 import java.math.BigDecimal;
@@ -22,8 +21,6 @@ public interface IManageInventory {
 
     void restockAllSodaToMaxCount() throws InvalidStateException;
 
-    void initialStockingOfMachine(List<BrandsOfSoda> brandsOfSodaList) throws InvalidArgumentException;
-
     boolean checkIfSodaInventoryIsGreaterThanZero(BrandsOfSoda soda);
 
     int getMaximumCapacityOfSodasForMachine();
@@ -41,5 +38,7 @@ public interface IManageInventory {
     BigDecimal getCostOfSoda();
 
     String dispenseSoda(BrandsOfSoda soda, int compared);
+
+    List<BrandsOfSoda> getBrandsOfSodas();
 
 }

@@ -19,11 +19,13 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public class ManageVendingMachineBalance implements IManageVendingMachineBalance {
+
     public static final String MESSAGE_NEED_TO_INSERT_MORE_MONEY_PREFIX = "Please enter at least ";
     public static final String MESSAGE_DISPENSED_PREFIX = "Here is your ";
-    public static final String MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX = " Here is your change ";
+    public static final String MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX = " This is your balance ";
     public static final String MESSAGE_PLEASE_INSERT_PROPER_AMOUNT_PREFIX = "Please enter ";
     public static final String CENTS = " cents";
+    public static final String COIN_RETURN_MESSAGE = " If you want the balance please enter \"coin_return\".";
     private static final String INVALID_CURRENCY_MESSAGE = "Currency inserted is invalid";
     private static final BigDecimal BIG_DECIMAL_0_DOLLARS = new BigDecimal("0.00");
     private static final String INCORRECT_CURRENCY_INSERTED_MESSAGE = "Please enter only \"0.05\", \"0.10\", or \"0.25\"";
@@ -50,8 +52,8 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
         this.workingBalance = BIG_DECIMAL_0_DOLLARS;
     }
 
-    public void subtractMoneyFromMachineBalance(BigDecimal amount) {
-        machineBalance = machineBalance.subtract(amount);
+    public void setWorkingBalance(BigDecimal amount) {
+        workingBalance = amount;
     }
 
     public String acceptInsertedMoney(String money) throws InvalidMoneyException {
@@ -65,7 +67,7 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
         return workingBalance.toString();
     }
 
-    public String calculateDepositedAmountAgainstCostOfSoda(BigDecimal costOfSoda, BrandsOfSoda soda, int compared) {
+    public String calculateDepositedAmountAgainstCostOfSoda(BigDecimal costOfSoda, BrandsOfSoda soda, int compared, boolean hasStock) {
         if (workingBalance.equals(new BigDecimal(ZERO_DOLLARS)))
             return MESSAGE_PLEASE_INSERT_PROPER_AMOUNT_PREFIX + costOfSoda.toString() + CENTS;
 
@@ -73,13 +75,20 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
             resetWorkingBalance();
         } else if (compared == -1) {
             BigDecimal differenceInPriceAndMoneyInserted = costOfSoda.subtract(workingBalance);
-            return MESSAGE_NEED_TO_INSERT_MORE_MONEY_PREFIX + differenceInPriceAndMoneyInserted + CENTS;
+
+            if (hasStock) {
+                return MESSAGE_NEED_TO_INSERT_MORE_MONEY_PREFIX + differenceInPriceAndMoneyInserted + CENTS;
+            }
         } else {
             BigDecimal overage = workingBalance.subtract(costOfSoda);
-            resetWorkingBalance();
-            subtractMoneyFromMachineBalance(overage);
-            return MESSAGE_DISPENSED_PREFIX + soda.toString() + MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX + overage.toString() +
-                    CENTS;
+            setWorkingBalance(overage);
+            String msg = "";
+            if (hasStock) {
+                msg = MESSAGE_DISPENSED_PREFIX + soda.toString() + MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX + overage.toString() +
+                        CENTS + COIN_RETURN_MESSAGE;
+            }
+
+            return msg;
         }
 
         return EMPTY_STRING;
@@ -97,19 +106,34 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
 
         Map<String, Integer> mapOfReturnedMoney = new HashMap<String, Integer>();
 
-        if (quarterCount > 0){
+        if (quarterCount > 0) {
             mapOfReturnedMoney.put(Coins.TWENTY_FIVE_CENTS.getStringRepresentation(), quarterCount);
         }
 
-        if (dimeCount > 0){
+        if (dimeCount > 0) {
             mapOfReturnedMoney.put(Coins.TEN_CENTS.getStringRepresentation(), dimeCount);
         }
 
-        if (nickelCount > 0){
+        if (nickelCount > 0) {
             mapOfReturnedMoney.put(Coins.FIVE_CENTS.getStringRepresentation(), nickelCount);
         }
 
+        correctAllBalances(quarterCount, dimeCount, nickelCount);
+
         return mapOfReturnedMoney;
+    }
+
+    private void correctAllBalances(int quarterCount, int dimeCount, int nickelCount) {
+        BigDecimal quarter = Coins.TWENTY_FIVE_CENTS.getBigDecimalRepresentation();
+        BigDecimal dime = Coins.TEN_CENTS.getBigDecimalRepresentation();
+        BigDecimal nickel = Coins.FIVE_CENTS.getBigDecimalRepresentation();
+
+        BigDecimal quarterAmount = quarter.multiply(new BigDecimal(quarterCount));
+        BigDecimal dimeAmount = dime.multiply(new BigDecimal(dimeCount));
+        BigDecimal nickelAmount = nickel.multiply(new BigDecimal(nickelCount));
+
+        machineBalance = machineBalance.subtract(quarterAmount).subtract(dimeAmount).subtract(nickelAmount);
+        workingBalance = BIG_DECIMAL_0_DOLLARS;
     }
 
     public BigDecimal getMachineBalance() {
@@ -119,4 +143,5 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
     public BigDecimal getWorkingBalance() {
         return workingBalance;
     }
+
 }
