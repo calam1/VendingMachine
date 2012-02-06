@@ -28,20 +28,140 @@ import java.util.List;
 
 public final class VendingMachineConsole {
     private static final String fNEW_LINE = System.getProperty("line.separator");
-    public static final String HELP = "help";
-    public static final String REFUND = "refund";
-    public static final String COIN_RETURN = "coin_return";
+    private static final String HELP = "help";
+    private static final String REFUND = "refund";
+    private static final String COIN_RETURN = "coin_return";
+
+    private static Console console;
+    private static IAmAVendingMachine vendingMachine;
+    private static String numberOfSelectionButtons = null;
+    private static String capacityNumber = null;
+    private static String command;
+    private static List<BrandsOfSoda> userSelectedEntries = new ArrayList<BrandsOfSoda>();
+    private static List<String> brandsOfSodaStringValues;
+    private static List<String> brandList;
 
     public static final void main(String... aArgs) {
-        Console console = System.console();
-
+        console = System.console();
         String createDefaultVendingMachineResponse = console.readLine("Create a default vending machine? Please enter YES or NO: ");
         console.printf(fNEW_LINE);
-        String numberOfSelectionButtons = null;
-        String capacityNumber = null;
-        List<BrandsOfSoda> userSelectedEntries = new ArrayList<BrandsOfSoda>();
-        List<String> brandsOfSodaStringValues;
+        createSodaVendingMachine(console, createDefaultVendingMachineResponse);
+        List<String> commands = setupInitializationOfVendingMachineSoftware();
+        userInteraction(commands);
+    }
 
+    private static void userInteraction(List<String> commands) {
+        while (true) {
+            command = command.toUpperCase();
+
+            if (COIN_RETURN.equalsIgnoreCase(command)) {
+                String coinReturnMsg = vendingMachine.coinReturn();
+                console.printf("The following coins have been returned to you: " +
+                        (coinReturnMsg.trim().equalsIgnoreCase("") ? "NOTHING" : coinReturnMsg));
+                console.printf(fNEW_LINE);
+            } else if (command.equalsIgnoreCase(HELP)) {
+                console.printf("These are the valid commands: ");
+                console.printf(fNEW_LINE);
+
+                for (String cmd : commands) {
+                    console.printf(cmd);
+                    console.printf(fNEW_LINE);
+                }
+            } else if (command.equalsIgnoreCase(Coins.TWENTY_FIVE_CENTS.getStringRepresentation()) ||
+                    command.equalsIgnoreCase(Coins.TEN_CENTS.getStringRepresentation()) ||
+                    command.equalsIgnoreCase(Coins.FIVE_CENTS.getStringRepresentation())) {
+                try {
+                    console.printf("You have a total of: " + vendingMachine.insertCoin(command) + " deposited");
+                    console.printf(fNEW_LINE);
+                } catch (InvalidMoneyException e) {
+                    console.printf("Error with coin deposit!!!!");
+                    console.printf(fNEW_LINE);
+                }
+            } else if (brandList.contains(command)) {
+                console.printf(vendingMachine.dispenseSoda(BrandsOfSoda.valueOf(command)));
+                console.printf(fNEW_LINE);
+            } else if ("stock".equalsIgnoreCase(command)) {
+                try {
+                    console.printf("Restocking the whole machine");
+                    console.printf(fNEW_LINE);
+                    vendingMachine.restockAllSelections();
+                } catch (InvalidStateException e) {
+                    console.printf("Restocking the soda machine has failed!");
+                    console.printf(fNEW_LINE);
+                }
+            } else if (!commands.contains(command)) {
+                console.printf(command + " is an invalid command, if you forgot the list of valid commands please type \"help\"");
+                console.printf(fNEW_LINE);
+                console.printf(fNEW_LINE);
+            }
+
+            command = console.readLine("Please enter another command: ");
+        }
+    }
+
+    private static List<String> setupInitializationOfVendingMachineSoftware() {
+        SodaMachineSpecifications specifications = null;
+        int capacity = Integer.parseInt(capacityNumber);
+        int buttons = Integer.parseInt(numberOfSelectionButtons);
+
+        try {
+            specifications = new SodaMachineSpecifications(capacity, buttons, new BigDecimal("0.50"));
+        } catch (InvalidArgumentException e) {
+            console.printf(e.getMessage());
+        }
+
+        IManageInventory manageInventory = new ManageInventory(specifications, userSelectedEntries);
+        IManageVendingMachineBalance manageBalance = new ManageVendingMachineBalance();
+
+        Commands cmds = new CommandImpl(userSelectedEntries);
+
+        vendingMachine = SodaMachineFactory.INSTANCE.createSodaMachine(manageInventory, manageBalance, cmds);
+        console.printf("Creating the vending machine.");
+        console.printf(fNEW_LINE);
+
+        try {
+            vendingMachine.restockAllSelections();
+        } catch (InvalidStateException e) {
+            console.printf("Failed to initially stock the vending machine: " + e.getMessage());
+        }
+
+        console.printf("The vending machine has a capacity of " + vendingMachine.getMaximumNumberOfCansAllowedInMachine());
+        console.printf(fNEW_LINE);
+        console.printf("The vending machine has " + vendingMachine.getNumberOfSelectionButtons() + " selection buttons");
+        console.printf(fNEW_LINE);
+        console.printf("The vending machine is stocking " + vendingMachine.calculateTheMaximumAmountOfProductPerSelection() +
+                " cans per selection");
+        console.printf(fNEW_LINE);
+        console.printf("The vending machine has the following types of soda: ");
+        console.printf(fNEW_LINE);
+
+        brandList = vendingMachine.getTheBrandsOfSodaInTheMachine();
+
+        for (String brand : brandList) {
+            console.printf(brand + " inventory: " + manageInventory.getCurrentInventoryForAParticularSelection(BrandsOfSoda.valueOf(brand)));
+            console.printf(fNEW_LINE);
+        }
+
+        console.printf("Please enter one of the following commands:");
+        console.printf(fNEW_LINE);
+        console.printf("Insert money by typing amount in the following format: 0.25, 0.10, 0.05 this machine only accepts " +
+                "quarters, dimes,and nickels only.");
+        console.printf(fNEW_LINE);
+        console.printf("Type \"HELP\" to see the different selections available.");
+        console.printf(fNEW_LINE);
+        console.printf("Type the soda selection as it is spelled out in the menu");
+        console.printf(fNEW_LINE);
+        console.printf("Type \"coin_return\" to get money back");
+        console.printf(fNEW_LINE);
+        console.printf("Hit keys Control - C to end the application");
+        console.printf(fNEW_LINE);
+        command = console.readLine("Please enter a command: ");
+        console.printf(fNEW_LINE);
+
+        return vendingMachine.getCommands();
+    }
+
+    private static void createSodaVendingMachine(Console console, String createDefaultVendingMachineResponse) {
         while (!createDefaultVendingMachineResponse.equalsIgnoreCase("yes") && !createDefaultVendingMachineResponse.equalsIgnoreCase("no")) {
             createDefaultVendingMachineResponse = console.readLine("I do not understand the response, please enter YES or NO: ");
             console.printf(fNEW_LINE);
@@ -142,113 +262,6 @@ public final class VendingMachineConsole {
                     }
                 }
             }
-        }
-
-        SodaMachineSpecifications specifications = null;
-        int capacity = Integer.parseInt(capacityNumber);
-        int buttons = Integer.parseInt(numberOfSelectionButtons);
-
-        try {
-            specifications = new SodaMachineSpecifications(capacity, buttons, new BigDecimal("0.50"));
-        } catch (InvalidArgumentException e) {
-            console.printf(e.getMessage());
-        }
-
-        IManageInventory manageInventory = new ManageInventory(specifications, userSelectedEntries);
-        IManageVendingMachineBalance manageBalance = new ManageVendingMachineBalance();
-
-        Commands cmds = new CommandImpl(userSelectedEntries);
-
-        IAmAVendingMachine vendingMachine = SodaMachineFactory.INSTANCE.createSodaMachine(manageInventory, manageBalance, cmds);
-        console.printf("Creating the vending machine.");
-        console.printf(fNEW_LINE);
-
-        try {
-            vendingMachine.restockAllSelections();
-        } catch (InvalidStateException e) {
-            console.printf("Failed to initially stock the vending machine: " + e.getMessage());
-        }
-
-        console.printf("The vending machine has a capacity of " + vendingMachine.getMaximumNumberOfCansAllowedInMachine());
-        console.printf(fNEW_LINE);
-        console.printf("The vending machine has " + vendingMachine.getNumberOfSelectionButtons() + " selection buttons");
-        console.printf(fNEW_LINE);
-        console.printf("The vending machine is stocking " + vendingMachine.calculateTheMaximumAmountOfProductPerSelection() +
-                " cans per selection");
-        console.printf(fNEW_LINE);
-        console.printf("The vending machine has the following types of soda: ");
-        console.printf(fNEW_LINE);
-
-        List<String> brandList = vendingMachine.getTheBrandsOfSodaInTheMachine();
-
-        for (String brand : brandList) {
-            console.printf(brand + " inventory: " + manageInventory.getCurrentInventoryForAParticularSelection(BrandsOfSoda.valueOf(brand)));
-            console.printf(fNEW_LINE);
-        }
-
-        console.printf("Please enter one of the following commands:");
-        console.printf(fNEW_LINE);
-        console.printf("Insert money by typing amount in the following format: 0.25, 0.10, 0.05 this machine only accepts " +
-                "quarters, dimes,and nickels only.");
-        console.printf(fNEW_LINE);
-        console.printf("Type \"HELP\" to see the different selections available.");
-        console.printf(fNEW_LINE);
-        console.printf("Type the soda selection as it is spelled out in the menu");
-        console.printf(fNEW_LINE);
-        console.printf("Type \"coin_return\" to get money back");
-        console.printf(fNEW_LINE);
-        console.printf("Hit keys Control - C to end the application");
-        console.printf(fNEW_LINE);
-        String command = console.readLine("Please enter a command: ");
-        console.printf(fNEW_LINE);
-
-        List<String> commands = vendingMachine.getCommands();
-
-        while (true) {
-            command = command.toUpperCase();
-
-            if (COIN_RETURN.equalsIgnoreCase(command)) {
-                String coinReturnMsg = vendingMachine.coinReturn();
-                console.printf("The following coins have been returned to you: " +
-                        (coinReturnMsg.trim().equalsIgnoreCase("") ? "NOTHING" : coinReturnMsg));
-                console.printf(fNEW_LINE);
-            } else if (command.equalsIgnoreCase(HELP)) {
-                console.printf("These are the valid commands: ");
-                console.printf(fNEW_LINE);
-
-                for (String cmd : commands) {
-                    console.printf(cmd);
-                    console.printf(fNEW_LINE);
-                }
-            } else if (command.equalsIgnoreCase(Coins.TWENTY_FIVE_CENTS.getStringRepresentation()) ||
-                    command.equalsIgnoreCase(Coins.TEN_CENTS.getStringRepresentation()) ||
-                    command.equalsIgnoreCase(Coins.FIVE_CENTS.getStringRepresentation())) {
-                try {
-                    console.printf("You have a total of: " + vendingMachine.insertCoin(command) + " deposited");
-                    console.printf(fNEW_LINE);
-                } catch (InvalidMoneyException e) {
-                    console.printf("Error with coin deposit!!!!");
-                    console.printf(fNEW_LINE);
-                }
-            } else if (brandList.contains(command)) {
-                console.printf(vendingMachine.dispenseSoda(BrandsOfSoda.valueOf(command)));
-                console.printf(fNEW_LINE);
-            }else if ("stock".equalsIgnoreCase(command)){
-                try {
-                    console.printf("Restocking the whole machine");
-                    console.printf(fNEW_LINE);
-                    vendingMachine.restockAllSelections();
-                } catch (InvalidStateException e) {
-                    console.printf("Restocking the soda machine has failed!");
-                    console.printf(fNEW_LINE);
-                }
-            } else if (!commands.contains(command)) {
-                console.printf(command + " is an invalid command, if you forgot the list of valid commands please type \"help\"");
-                console.printf(fNEW_LINE);
-                console.printf(fNEW_LINE);
-            }
-
-            command = console.readLine("Please enter another command: ");
         }
     }
 

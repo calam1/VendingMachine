@@ -72,7 +72,9 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
             return MESSAGE_PLEASE_INSERT_PROPER_AMOUNT_PREFIX + costOfSoda.toString() + CENTS;
 
         if (compared == 0) {
-            resetWorkingBalance();
+            if (hasStock) {
+                resetWorkingBalance();
+            }
         } else if (compared == -1) {
             BigDecimal differenceInPriceAndMoneyInserted = costOfSoda.subtract(workingBalance);
 
@@ -80,10 +82,10 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
                 return MESSAGE_NEED_TO_INSERT_MORE_MONEY_PREFIX + differenceInPriceAndMoneyInserted + CENTS;
             }
         } else {
-            BigDecimal overage = workingBalance.subtract(costOfSoda);
-            setWorkingBalance(overage);
             String msg = "";
             if (hasStock) {
+                BigDecimal overage = workingBalance.subtract(costOfSoda);
+                setWorkingBalance(overage);
                 msg = MESSAGE_DISPENSED_PREFIX + soda.toString() + MESSAGE_DISPENSED_OWE_CHANGE_SUFFIX + overage.toString() +
                         CENTS + COIN_RETURN_MESSAGE;
             }
