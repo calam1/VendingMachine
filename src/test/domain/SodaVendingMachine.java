@@ -54,7 +54,7 @@ public class SodaVendingMachine {
     public void howManySelectButtonsAreThereOnTheMachine() {
         IAmAVendingMachine vendingMachine = null;
 
-        vendingMachine = new VendingMachine(inventoryManager, null, null);
+        vendingMachine = new VendingMachine(inventoryManager, null, null, specifications);
 
         int numberOfSelections = vendingMachine.getNumberOfSelectionButtons();
 

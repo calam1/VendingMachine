@@ -2,6 +2,7 @@ package factory;
 
 import domain.Commands;
 import domain.IAmAVendingMachine;
+import domain.SodaMachineSpecifications;
 import domain.impl.VendingMachine;
 import managers.IManageInventory;
 import managers.IManageVendingMachineBalance;
@@ -17,8 +18,9 @@ public enum SodaMachineFactory {
 
     INSTANCE;
 
-    public IAmAVendingMachine createSodaMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance, Commands commands) {
-        return new VendingMachine(manageInventory, balance, commands);
+    public IAmAVendingMachine createSodaMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance,
+                                                Commands commands, SodaMachineSpecifications specifications) {
+        return new VendingMachine(manageInventory, balance, commands, specifications);
     }
 
 }

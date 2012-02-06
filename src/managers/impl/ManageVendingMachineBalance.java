@@ -68,8 +68,9 @@ public class ManageVendingMachineBalance implements IManageVendingMachineBalance
     }
 
     public String calculateDepositedAmountAgainstCostOfSoda(BigDecimal costOfSoda, BrandsOfSoda soda, int compared, boolean hasStock) {
-        if (workingBalance.equals(new BigDecimal(ZERO_DOLLARS)))
+        if (workingBalance.equals(new BigDecimal(ZERO_DOLLARS)) && hasStock) {
             return MESSAGE_PLEASE_INSERT_PROPER_AMOUNT_PREFIX + costOfSoda.toString() + CENTS;
+        }
 
         if (compared == 0) {
             if (hasStock) {

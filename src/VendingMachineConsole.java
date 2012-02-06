@@ -115,7 +115,7 @@ public final class VendingMachineConsole {
 
         Commands cmds = new CommandImpl(userSelectedEntries);
 
-        vendingMachine = SodaMachineFactory.INSTANCE.createSodaMachine(manageInventory, manageBalance, cmds);
+        vendingMachine = SodaMachineFactory.INSTANCE.createSodaMachine(manageInventory, manageBalance, cmds, specifications);
         console.printf("Creating the vending machine.");
         console.printf(fNEW_LINE);
 

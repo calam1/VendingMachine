@@ -4,6 +4,7 @@ import domain.BrandsOfSoda;
 import domain.Coins;
 import domain.Commands;
 import domain.IAmAVendingMachine;
+import domain.SodaMachineSpecifications;
 import exceptions.InvalidMoneyException;
 import exceptions.InvalidStateException;
 import managers.IManageInventory;
@@ -29,19 +30,22 @@ public class VendingMachine implements IAmAVendingMachine {
     private final IManageInventory manageInventory;
     private IManageVendingMachineBalance balance;
     private final Commands commands;
+    private final SodaMachineSpecifications specifications;
 
-    public VendingMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance, Commands commands) {
+    public VendingMachine(IManageInventory manageInventory, IManageVendingMachineBalance balance,
+                          Commands commands, SodaMachineSpecifications specifications) {
         this.manageInventory = manageInventory;
         this.balance = balance;
         this.commands = commands;
+        this.specifications = specifications;
     }
 
     public int getNumberOfSelectionButtons() {
-        return manageInventory.getNumberOfSelectionButtons();
+        return specifications.getNumberOfSelectionButtons();
     }
 
     public int getMaximumNumberOfCansAllowedInMachine() {
-        return manageInventory.getMaximumCapacityOfSodasForMachine();
+        return specifications.getMaximumAmountOfSodasForMachine();
     }
 
     public List<String> getTheBrandsOfSodaInTheMachine() {
